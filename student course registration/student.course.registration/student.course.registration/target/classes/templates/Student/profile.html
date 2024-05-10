@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('/images/img1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav.navbar {
+            width: 100%;
+        }
+
+        .profile-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info label {
+            font-weight: bold;
+        }
+
+        .profile-info span {
+            color: #ddd;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .btn-unregister {
+            background-color: red;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-unregister:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <!-- nav bar for the index page -->
+    <div class="container">
+        <!-- Brand and toggle get grouped for better  display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">MANAGEMENT</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a th:href="@{/admin/home}">HOME</a></li>
+                <li><a th:href="@{/viewCourse}">VIEW COURSES</a></li>
+                <li><a th:href="@{/profile}">PROFILE</a></li>
+                <li id="logout"><a th:href="@{/logout}">LOGOUT</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div th:if="${session.message}" th:classappend="${session.message.type}" class="alert" role="alert">
+    <p class="text-center" th:text="${session.message.content}"></p>
+    <th:block th:text="${#session.removeAttribute('message')}"></th:block>
+</div>
+
+
+<div class="profile-card">
+    <h1>Student Profile</h1>
+    <div class="profile-info">
+        <label>Name:</label>
+        <span id="studentName"></span>
+    </div>
+    <div class="profile-info">
+        <label>ID:</label>
+        <span id="studentId"></span>
+    </div>
+    <div class="profile-info">
+        <label>Course Name:</label>
+        <span id="courseName"></span>
+    </div>
+    <button class="btn-unregister" id="btnUnregister">Unregister</button>
+</div>
+<script>
+    fetch('/getStudent')
+        .then(response => response.json())
+        .then(data => {
+
+            document.getElementById('studentName').textContent = data.studentName;
+            document.getElementById('studentId').textContent = data.id;
+            document.getElementById('courseName').textContent = data.courseName;
+        })
+        .catch(error => console.error('Error fetching student profile:', error));
+
+
+    document.getElementById('btnUnregister').addEventListener('click', function() {
+        fetch('/unregister')
+            .then(response => response.json())
+            .then(data => {
+
+                console.log(data);
+
+                alert(data.message);
+
+                window.location.href = '/profile';
+            })
+            .catch(error => console.error('Error unregistering:', error));
+    });
+</script>
+
+
+
+
+</body>
+</html>

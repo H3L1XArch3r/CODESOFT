@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('/images/img1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav.navbar {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .container-fluid {
+            padding: 20px;
+            max-width: 1200px;
+        }
+
+        h1 {
+            font-size: 50px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-inline {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 70%;
+            margin-right: 10px;
+        }
+
+        .btn-outline-success {
+            background-color: blue;
+            color: white;
+            border-color: blue;
+        }
+
+        #myTable {
+            width: 100%;
+            border-collapse: collapse;
+            color: black;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        #myTable th,
+        #myTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">MANAGEMENT</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="#" class="active">HOME</a></li>
+                <li><a th:href="@{/viewCourse}">VIEW COURSES</a></li>
+                <li><a th:href="@{/register}">REGISTER</a></li>
+                <li><a th:href="@{/profile}">PROFILE</a></li>
+                <li id="logout"><a th:href="@{/logout}">LOGOUT</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <h1>Courses</h1>
+
+    <form class="form-inline" id="getCourses" name="getCourses">
+        <input class="form-control" id="keyword" name="keyword" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="button" id="searchBtn">Search</button>
+    </form>
+
+    <table id="myTable" class="table table-striped table-responsive-md">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Course Name</th>
+            <th>Description</th>
+            <th>Schedule</th>
+            <th>Register</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button id="prevBtn">Prev</button>
+        <span id="coursePageNo">1</span>
+        <button id="nextBtn">Next</button>
+    </div>
+</div>
+
+<script>
+
+    let currentPage = 1;
+    const pageSize = 5;
+
+    function displayCourses(courses) {
+        const tableBody = document.querySelector('#myTable tbody');
+        tableBody.innerHTML = '';
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        for (let i = startIndex; i < endIndex && i < courses.length; i++) {
+            const course = courses[i];
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${course.courseCode}</td>
+                <td>${course.title}</td>
+                <td>${course.description}</td>
+                <td>${course.schedule}</td>
+                <td><button class="btn btn-primary register-btn" data-course-id="${course.courseCode}">Register</button></td>
+            `;
+            tableBody.appendChild(row);
+        }
+        document.getElementById('coursePageNo').textContent = currentPage;
+    }
+
+    function fetchCourses() {
+        fetch('/getAllCourses')
+            .then(response => response.json())
+            .then(courses => {
+                displayCourses(courses);
+            })
+            .catch(error => console.error('Error fetching courses:', error));
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', function() {
+        currentPage++;
+        fetchCourses();
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', function() {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchCourses();
+        }
+    });
+
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('register-btn')) {
+            const courseId = event.target.dataset.courseId;
+            window.location.href = `/register/${courseId}`;
+        }
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', function() {
+        const keyword = document.getElementById('keyword').value;
+        fetch(`/search?courseName=${keyword}`)
+            .then(response => response.json())
+            .then(courses => {
+                displayCourses(courses);
+            })
+            .catch(error => console.error('Error searching courses:', error));
+    });
+
+    fetchCourses();
+
+
+</script>
+
+</body>
+</html>

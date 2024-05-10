@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      >
+<head>
+    <meta charset="UTF-8">
+
+     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Registration</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+
+        body {
+             margin: 0;
+             padding: 0;
+             font-family: Arial, sans-serif;
+             background-image: url('/images/img1.jpg');
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             color: white;
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+         }
+           nav.navbar {
+             width: 100%;
+         }
+
+
+         .container-fluid {
+             margin-top: 50px;
+         }
+
+         h1 {
+             text-align: center;
+             color: #fff; /* Set text color to white */
+         }
+
+         .form-group {
+             margin-bottom: 20px;
+         }
+
+         .btn-success {
+             background-color: blue;
+             border-color: blue;
+         }
+
+
+         #message {
+             text-align: center;
+             margin-top: 20px;
+              font-weight: bold;
+             font-size: 20px;
+             color: #fff;
+         }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+    <!-- nav bar for the index page -->
+    <div class="container">
+        <!-- Brand and toggle get grouped for better  display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">MANAGEMENT</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a th:href="@{/admin/home}">HOME</a></li>
+                <li><a th:href="@{/viewCourse}">VIEW COURSES</a></li>
+
+                <li><a th:href="@{/profile}">PROFILE</a></li>
+                <li id="logout"><a th:href="@{/logout}">LOGOUT</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container-fluid">
+    <h1>Course Registration</h1>
+    <form id="registrationForm">
+        <div class="form-group">
+            <label for="courseCode" style="color: #fff;">Course Code:</label>
+            <input type="text" class="form-control" id="courseCode" name="courseCode" readonly style="background-color: #fff;">
+        </div>
+        <div class="form-group">
+            <label for="day" style="color: #fff;">Day:</label>
+            <select class="form-control" id="day" name="day" required style="background-color: #fff;">
+                <option value="">Select a day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Register</button>
+    </form>
+    <div id="message" style="color: red;"></div>
+</div>
+
+
+<script>
+
+
+
+    function getCourseCodeFromUrl() {
+        const urlPath = window.location.pathname;
+        const parts = urlPath.split('/');
+        return parts[parts.length - 1];
+    }
+
+
+    document.getElementById('courseCode').value = getCourseCodeFromUrl();
+
+
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const queryParams = new URLSearchParams();
+        for (const pair of formData.entries()) {
+            queryParams.append(pair[0], pair[1]);
+        }
+        fetch(`/register?${queryParams.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.text())
+        .then(data => {
+
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = data;
+            if (data.includes("successful")) {
+                messageElement.style.color = 'green';
+            } else {
+                messageElement.style.color = 'red';
+            }
+        })
+        .catch(error => console.error('Error registering:', error));
+    });
+
+
+    window.onload = function() {
+        document.getElementById('courseCode').value = getCourseCodeFromUrl();
+    }
+</script>
+
+
+</body>
+</html>

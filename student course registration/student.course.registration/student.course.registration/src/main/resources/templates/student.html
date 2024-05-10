@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Student</title>
+    <style>
+        body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-image: url('/images/img1.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+}
+
+input {
+    padding: 10px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+ .register-link {
+            color: white;
+            text-decoration: underline;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+.message {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.success-message {
+    color: limegreen;
+}
+
+
+.error-message {
+    color: red;
+}
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Save Student</h1>
+    <form id="studentForm">
+        <label for="studentName">Name:</label>
+        <input type="text" id="studentName" name="studentName" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Save</button>
+    </form>
+    <div class="message" id="message" style="display: none;"></div>
+    <a   href="/signin" class="register-link">Already a User? Login</a>
+</div>
+<script>
+    document.getElementById('studentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var formData = {
+            studentName: document.getElementById('studentName').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        };
+
+        fetch('/saveStudent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+       .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log(data);
+            var messageElement = document.getElementById('message');
+            messageElement.innerText = data;
+            messageElement.style.display = 'block';
+            document.getElementById('studentForm').reset();
+        })
+        .catch(error => {
+            var messageElement = document.getElementById('message');
+            messageElement.innerText = 'Some error occurred: ' + error.message;
+            messageElement.style.display = 'block';
+        });
+    });
+</script>
+
+
+
+</body>
+</html>
